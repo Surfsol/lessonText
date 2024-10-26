@@ -3,6 +3,7 @@ import { Button, StyleSheet } from 'react-native';
 import * as Speech from 'expo-speech';
 import EditScreenInfo from '@/components/EditScreenInfo';
 import { Text, View } from '@/components/Themed';
+import Record from '@/components/Record';
 
 export default function ButtonSpeech() {
   const [availableVoices, setAvailableVoices] = useState<Speech.Voice[]>([]);
@@ -38,6 +39,7 @@ export default function ButtonSpeech() {
       <Text style={styles.title}>Press to Speak</Text>
 
       <Button title='Press to hear some words' onPress={speak} />
+      <Record/>
 
       <EditScreenInfo path='app/(tabs)/index.tsx' />
     </View>
