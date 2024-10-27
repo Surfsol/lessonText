@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { View, StyleSheet, Button } from 'react-native';
 import { Audio } from 'expo-av';
+import { saveRecording } from './FileSystem/DownloadFiles';
 
 export default function Record() {
   const [recording, setRecording] = useState<Audio.Recording | undefined>(
     undefined
   );
   const [permissionResponse, requestPermission] = Audio.usePermissions();
-  const [uri, setUri] = useState<String | null>()
+  const [uri, setUri] = useState<String | null>();
 
   async function startRecording() {
     try {
@@ -40,7 +41,8 @@ export default function Record() {
           allowsRecordingIOS: false,
         });
         const uriFile = recording.getURI();
-        setUri(uriFile)
+        setUri(uriFile);
+        saveRecording(uriFile, 'AudioRecording.m4a');
         console.log('Recording stopped and stored at', uriFile);
       } catch (err) {
         console.error('Failed to stop recording', err);
@@ -50,13 +52,12 @@ export default function Record() {
     } else {
       console.log('No recording');
     }
-
   }
-  
+
   return (
     <View style={styles.container}>
       <Button
-        title={recording ? 'Stop Recording' : 'Start Recording'}
+        title={recording ? 'Stop Recording' : 'Startrr Recording'}
         onPress={recording ? stopRecording : startRecording}
       />
     </View>
