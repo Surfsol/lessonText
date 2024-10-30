@@ -2,48 +2,44 @@ import { useState } from 'react';
 import { View, StyleSheet, Button } from 'react-native';
 import { Audio } from 'expo-av';
 import { saveRecording } from './FileSystem/DownloadFiles';
+import PlayBackAudio from './PlaybackAudio';
 
 export default function Record() {
   const [recording, setRecording] = useState<Audio.Recording | undefined>(
     undefined
   );
   const [permissionResponse, requestPermission] = Audio.usePermissions();
-  const [uri, setUri] = useState<String | null>();
+  const [uriFileSys, setUriFileSys] = useState<string | null>();
 
   async function startRecording() {
     try {
       if (permissionResponse && permissionResponse.status !== 'granted') {
-        console.log('Requesting permission..');
         await requestPermission();
+      } else {
+        await Audio.setAudioModeAsync({
+          allowsRecordingIOS: true,
+          playsInSilentModeIOS: true,
+        });
+        const { recording: newRecording } = await Audio.Recording.createAsync(
+          Audio.RecordingOptionsPresets.HIGH_QUALITY
+        );
+        setRecording(newRecording);
       }
-      await Audio.setAudioModeAsync({
-        allowsRecordingIOS: true,
-        playsInSilentModeIOS: true,
-      });
-
-      console.log('Starting recording..');
-      const { recording: newRecording } = await Audio.Recording.createAsync(
-        Audio.RecordingOptionsPresets.HIGH_QUALITY
-      );
-      setRecording(newRecording);
-      console.log('Recording started', recording);
     } catch (err) {
       console.error('Failed to start recording', err);
     }
-  }
+  }``
 
   async function stopRecording() {
     if (recording) {
-      console.log('Stopping recording..');
       try {
         await recording.stopAndUnloadAsync();
         await Audio.setAudioModeAsync({
           allowsRecordingIOS: false,
         });
-        const uriFile = recording.getURI();
-        setUri(uriFile);
-        saveRecording(uriFile, 'AudioRecording.m4a');
-        console.log('Recording stopped and stored at', uriFile);
+        const uriCache = recording.getURI();
+
+        saveRecording(uriCache, 'AudioRecording.m4a', setUriFileSys); // downloads to FileSystem
       } catch (err) {
         console.error('Failed to stop recording', err);
       } finally {
@@ -60,6 +56,7 @@ export default function Record() {
         title={recording ? 'Stop Recording' : 'Startrr Recording'}
         onPress={recording ? stopRecording : startRecording}
       />
+      {uriFileSys && <PlayBackAudio uriFileSys={uriFileSys} />}
     </View>
   );
 }
