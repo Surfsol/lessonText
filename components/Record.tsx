@@ -3,6 +3,7 @@ import { View, StyleSheet, Button } from 'react-native';
 import { Audio } from 'expo-av';
 import { saveRecording } from './FileSystem/DownloadFiles';
 import PlayBackAudio from './PlaybackAudio';
+import Confirm from './Confirm';
 
 export default function Record() {
   const [recording, setRecording] = useState<Audio.Recording | undefined>(
@@ -57,6 +58,7 @@ export default function Record() {
         onPress={recording ? stopRecording : startRecording}
       />
       {uriFileSys && <PlayBackAudio uriFileSys={uriFileSys} />}
+      {uriFileSys && <Confirm uriFileSys={uriFileSys}/>}
     </View>
   );
 }
