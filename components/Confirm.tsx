@@ -1,35 +1,38 @@
 import React, { useState } from 'react';
 import { Button, Text } from 'react-native';
+import * as FileSystem from 'expo-file-system';
+
 interface Confirm {
   uriFileSys: string | null | undefined;
 }
 
 const Confirm: React.FC<Confirm> = ({ uriFileSys }) => {
-  console.log('in Confirm', uriFileSys);
+  if (!uriFileSys) return;
   const [transcribeTxt, setTranscirbeTxt] = useState<string | null>();
 
   const transcribe = async () => {
-    const formData = new FormData();
-    formData.append('audio', {
-      uri: uriFileSys,
-      type: 'audio/m4a',
-      name: 'recording.m4a',
-    });
-    const settings = {
-      method: 'POST',
-      // headers: {
-      //   Accept: 'application/json',
-      //   'Content-Type': 'application/json',
-      // },
-      body: formData
-    };
     let result;
+
     try {
-      result = await fetch('http://127.0.0.1:5000/transcribe', settings);
+      // Read the file as base64
+      const base64Audio = await FileSystem.readAsStringAsync(uriFileSys, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+
+      console.log('base64');
+      const settings = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ audio: base64Audio, filename: 'recording.m4a' }),
+      };
+      const urlBack = process.env.EXPO_PUBLIC_LOCAL_IP;
+      result = await fetch(urlBack, settings);
       console.log({ result });
       result = await result.json();
     } catch (error) {
-      console.log('error');
+      console.log('error try catch Confirm', { error });
     }
     if (result) {
       console.log(result);
@@ -39,10 +42,8 @@ const Confirm: React.FC<Confirm> = ({ uriFileSys }) => {
 
   const buttonOrTxt = () => {
     if (transcribeTxt) {
-      console.log('intranscribe');
       return <Text>{transcribeTxt}</Text>;
     } else {
-      console.log('intranscribe button');
       return (
         <>
           <Button title='Confirm' onPress={transcribe} />

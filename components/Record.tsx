@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { View, StyleSheet, Button } from 'react-native';
 import { Audio } from 'expo-av';
-import { saveRecording } from './FileSystem/DownloadFiles';
+import { saveRecording } from './FileSystem/downloadFiles';
 import PlayBackAudio from './PlaybackAudio';
 import Confirm from './Confirm';
 
