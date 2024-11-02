@@ -12,8 +12,9 @@
     "**/*.ts",
     "**/*.tsx",
     ".expo/types/**/*.ts",
-    "expo-env.d.ts"
-, "components/FileSystem/DownloadFiles.ts"  ]
+    "expo-env.d.ts",
+    "components/FileSystem/downloadFiles.ts",
+    "types/**/*.d.ts"]
 }
 // {
 //   "compilerOptions": {
