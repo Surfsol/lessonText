@@ -18,8 +18,6 @@ const Confirm: React.FC<Confirm> = ({ uriFileSys }) => {
       const base64Audio = await FileSystem.readAsStringAsync(uriFileSys, {
         encoding: FileSystem.EncodingType.Base64,
       });
-
-      console.log('base64');
       const settings = {
         method: 'POST',
         headers: {
@@ -27,10 +25,11 @@ const Confirm: React.FC<Confirm> = ({ uriFileSys }) => {
         },
         body: JSON.stringify({ audio: base64Audio, filename: 'recording.m4a' }),
       };
-      const urlBack = process.env.EXPO_PUBLIC_LOCAL_IP;
-      result = await fetch(urlBack, settings);
-      console.log({ result });
-      result = await result.json();
+      const response = await fetch('https://flask-server-transcribe.onrender.com', settings);
+      console.log('confirm',{ response });
+      result = await response.json() // did not console.log
+      console.log('confirm',{ result });
+      if(result._bodyBlob) result = await result._bodyBlob._data.json();
     } catch (error) {
       console.log('error try catch Confirm', { error });
     }
