@@ -12,14 +12,12 @@ const Confirm: React.FC<Confirm> = ({ uriFileSys }) => {
 
   const transcribe = async () => {
     let result;
-
+    if(transcribeTxt)setTranscirbeTxt(null)
     try {
       // Read the file as base64
       const base64Audio = await FileSystem.readAsStringAsync(uriFileSys, {
         encoding: FileSystem.EncodingType.Base64,
       });
-
-      console.log('base64');
       const settings = {
         method: 'POST',
         headers: {
@@ -27,16 +25,16 @@ const Confirm: React.FC<Confirm> = ({ uriFileSys }) => {
         },
         body: JSON.stringify({ audio: base64Audio, filename: 'recording.m4a' }),
       };
-      const urlBack = process.env.EXPO_PUBLIC_LOCAL_IP;
-      result = await fetch(urlBack, settings);
-      console.log({ result });
-      result = await result.json();
+      const response = await fetch('https://flask-server-transcribe.onrender.com/transcribe', settings);
+      console.log('confirm',{ response });
+      result = await response.json() // did not console.log
+      console.log('confirm',{ result });
+      if(result.error) setTranscirbeTxt(result.error)
+      if(result._bodyBlob) result = await result._bodyBlob._data.json();
+      if(typeof result === 'string') setTranscirbeTxt(result);
     } catch (error) {
       console.log('error try catch Confirm', { error });
-    }
-    if (result) {
-      console.log(result);
-      setTranscirbeTxt(result);
+      if(typeof error === 'string') setTranscirbeTxt(result);
     }
   };
 
