@@ -4,6 +4,7 @@ import { Audio } from 'expo-av';
 import { saveRecording } from './FileSystem/downloadFiles';
 import PlayBackAudio from './PlaybackAudio';
 import Confirm from './Confirm';
+import { textLanguage } from '../assets/textTranslate/textLanguage';
 
 export default function Record() {
   const [recording, setRecording] = useState<Audio.Recording | undefined>(
@@ -11,7 +12,8 @@ export default function Record() {
   );
   const [permissionResponse, requestPermission] = Audio.usePermissions();
   const [uriFileSys, setUriFileSys] = useState<string | null>();
-
+  const tl = textLanguage.record
+  
   async function startRecording() {
     try {
       if (permissionResponse && permissionResponse.status !== 'granted') {
@@ -54,7 +56,7 @@ export default function Record() {
   return (
     <View style={styles.container}>
       <Button
-        title={recording ? 'Stop Recording' : 'Startrr Recording'}
+        title={recording ? tl['Stop_Recording'] : tl['Start_Recording']}
         onPress={recording ? stopRecording : startRecording}
       />
       {uriFileSys && <PlayBackAudio uriFileSys={uriFileSys} />}

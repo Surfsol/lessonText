@@ -1,6 +1,6 @@
 import { Audio } from 'expo-av';
 import { Button } from 'react-native';
-
+import { textLanguage } from '../assets/textTranslate/textLanguage';
 
 interface PlayBackAudio {
   uriFileSys: string | null | undefined;
@@ -22,7 +22,7 @@ const PlayBackAudio: React.FC<PlayBackAudio> = ({ uriFileSys }) => {
     }
   };
 
-  return <Button title='Play / Pause' onPress={playPause} />;
+  return <Button title={textLanguage.playbackAudio['Play / Pause']} onPress={playPause} />;
 };
 
 export default PlayBackAudio;
