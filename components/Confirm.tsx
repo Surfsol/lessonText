@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Button, Text } from 'react-native';
 import * as FileSystem from 'expo-file-system';
+import { textLanguage } from '../assets/textTranslate/textLanguage';
 
 interface Confirm {
   uriFileSys: string | null | undefined;
@@ -9,7 +10,7 @@ interface Confirm {
 const Confirm: React.FC<Confirm> = ({ uriFileSys }) => {
   if (!uriFileSys) return;
   const [transcribeTxt, setTranscirbeTxt] = useState<string | null>();
-
+  const tl = textLanguage.confirm
   const transcribe = async () => {
     let result;
     if(transcribeTxt)setTranscirbeTxt(null)
@@ -44,7 +45,7 @@ const Confirm: React.FC<Confirm> = ({ uriFileSys }) => {
     } else {
       return (
         <>
-          <Button title='Confirm' onPress={transcribe} />
+          <Button title= {tl['Confirm']} onPress={transcribe} />
         </>
       );
     }

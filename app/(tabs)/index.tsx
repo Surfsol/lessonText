@@ -4,11 +4,12 @@ import * as Speech from 'expo-speech';
 import EditScreenInfo from '@/components/EditScreenInfo';
 import { Text, View } from '@/components/Themed';
 import Record from '@/components/Record';
+import { textLanguage } from '@/assets/textTranslate/textLanguage';
 
 export default function ButtonSpeech() {
   const [availableVoices, setAvailableVoices] = useState<Speech.Voice[]>([]);
   const [selectedVoice, setSelectedVoice] = useState<Speech.Voice | undefined>(undefined);
-
+  const tl = textLanguage.index
   const speak = () => {
     const thingToSay = 'Bem Vindo Mio';
 
@@ -36,9 +37,9 @@ export default function ButtonSpeech() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Press to Speak</Text>
+      <Text style={styles.title}>{tl['Press to Speak']}</Text>
 
-      <Button title='Press to hear some words' onPress={speak} />
+      <Button title= {tl['Press to hear some words']} onPress={speak} />
       <Record/>
 
       <EditScreenInfo path='app/(tabs)/index.tsx' />
