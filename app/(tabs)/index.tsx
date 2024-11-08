@@ -9,6 +9,7 @@ import { textLanguage } from '@/assets/textTranslate/textLanguage';
 export default function ButtonSpeech() {
   const [availableVoices, setAvailableVoices] = useState<Speech.Voice[]>([]);
   const [selectedVoice, setSelectedVoice] = useState<Speech.Voice | undefined>(undefined);
+  const [userLogin, setUserLogin] = useState<Object | undefined>()
   const tl = textLanguage.index
   const speak = () => {
     const thingToSay = 'Bem Vindo Mio';
@@ -35,8 +36,15 @@ export default function ButtonSpeech() {
     });
   }, []);
 
-  return (
-    <View style={styles.container}>
+  const homeView = () => {
+    if(userLogin === undefined){
+      //Login screen
+      return(
+        <Text style={styles.title}>Login</Text>
+      )
+    } else {
+      return (
+      <View style={styles.container}>
       <Text style={styles.title}>{tl['Press to Speak']}</Text>
 
       <Button title= {tl['Press to hear some words']} onPress={speak} />
@@ -44,6 +52,12 @@ export default function ButtonSpeech() {
 
       <EditScreenInfo path='app/(tabs)/index.tsx' />
     </View>
+      )
+    }
+  }
+
+  return (
+    homeView()
   );
 }
 
