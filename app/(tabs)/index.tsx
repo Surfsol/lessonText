@@ -5,6 +5,9 @@ import EditScreenInfo from '@/components/EditScreenInfo';
 import { Text, View } from '@/components/Themed';
 import Record from '@/components/Record';
 import { textLanguage } from '@/assets/textTranslate/textLanguage';
+import LoginScreen from '@/components/LoginScreen';
+import loginLocalKey from '@/components/loginLocalKey';
+
 
 export default function ButtonSpeech() {
   const [availableVoices, setAvailableVoices] = useState<Speech.Voice[]>([]);
@@ -28,6 +31,9 @@ export default function ButtonSpeech() {
   };
 
   useEffect(() => {
+    loginLocalKey(setUserLogin)
+  }, [])
+  useEffect(() => {
     // Fetch the available voices when the component mounts
     Speech.getAvailableVoicesAsync().then((voices) => {
       console.log(voices[5])
@@ -40,7 +46,7 @@ export default function ButtonSpeech() {
     if(userLogin === undefined){
       //Login screen
       return(
-        <Text style={styles.title}>Login</Text>
+        <LoginScreen setUserLogin={setUserLogin}/>
       )
     } else {
       return (
