@@ -5,10 +5,14 @@ import EditScreenInfo from '@/components/EditScreenInfo';
 import { Text, View } from '@/components/Themed';
 import Record from '@/components/Record';
 import { textLanguage } from '@/assets/textTranslate/textLanguage';
+import LoginScreen from '@/components/LoginScreen';
+import loginLocalKey from '@/components/loginLocalKey';
+
 
 export default function ButtonSpeech() {
   const [availableVoices, setAvailableVoices] = useState<Speech.Voice[]>([]);
   const [selectedVoice, setSelectedVoice] = useState<Speech.Voice | undefined>(undefined);
+  const [userLogin, setUserLogin] = useState<Object | undefined>()
   const tl = textLanguage.index
   const speak = () => {
     const thingToSay = 'Bem Vindo Mio';
@@ -27,6 +31,9 @@ export default function ButtonSpeech() {
   };
 
   useEffect(() => {
+    loginLocalKey(setUserLogin)
+  }, [])
+  useEffect(() => {
     // Fetch the available voices when the component mounts
     Speech.getAvailableVoicesAsync().then((voices) => {
       console.log(voices[5])
@@ -35,8 +42,15 @@ export default function ButtonSpeech() {
     });
   }, []);
 
-  return (
-    <View style={styles.container}>
+  const homeView = () => {
+    if(userLogin === undefined){
+      //Login screen
+      return(
+        <LoginScreen setUserLogin={setUserLogin}/>
+      )
+    } else {
+      return (
+      <View style={styles.container}>
       <Text style={styles.title}>{tl['Press to Speak']}</Text>
 
       <Button title= {tl['Press to hear some words']} onPress={speak} />
@@ -44,6 +58,12 @@ export default function ButtonSpeech() {
 
       <EditScreenInfo path='app/(tabs)/index.tsx' />
     </View>
+      )
+    }
+  }
+
+  return (
+    homeView()
   );
 }
 
