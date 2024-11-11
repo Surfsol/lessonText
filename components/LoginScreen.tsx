@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import {
   TouchableOpacity,
-  View,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
 } from 'react-native';
+import Register from './Register';
 
 interface LoginScreenProps {
   setUserLogin: React.Dispatch<React.SetStateAction<Object | undefined>>;
@@ -28,6 +29,7 @@ const LoginScreen: React.FC<LoginScreenProps> = () => {
   });
   const [isFormValid, setIsFormValid] = useState<boolean>(false);
   const [errors, setErrors] = useState<Errors>({ email: null, password: null });
+  const [logOrReg, setLogOrReg] = useState<string>('logIn');
   const handleLogin = () => {
     validateForm();
     if (isFormValid) {
@@ -65,50 +67,56 @@ const LoginScreen: React.FC<LoginScreenProps> = () => {
     styles.input,
     error ? styles.inputError : {},
   ];
+  const logReg = () => {
+    if (logOrReg === 'logIn') {
+      return (
+        <ScrollView contentContainerStyle={styles.contentContainer}>
+          <Text style={styles.title}>Login</Text>
+          <TextInput
+            style={getInputStyle(errors.email)}
+            placeholder='Email'
+            keyboardType='email-address' // for showing the email keyboard
+            autoCapitalize='none'
+            value={emailPass.email}
+            id='email'
+            onChangeText={(text) => setEmailPass({ ...emailPass, email: text })}
+          ></TextInput>
+          {errors.email && <Text>{errors.email}</Text>}
+          <Text style={styles.title}>Password</Text>
+          <TextInput
+            style={getInputStyle(errors.password)}
+            placeholder='Password'
+            secureTextEntry // hides the password input
+            autoCapitalize='none'
+            value={emailPass.password}
+            id='password'
+            onChangeText={(text) =>
+              setEmailPass({ ...emailPass, password: text })
+            }
+          ></TextInput>
+          {errors.password && <Text>{errors.password}</Text>}
+          <TouchableOpacity style={styles.button} onPress={handleLogin}>
+            <Text style={styles.buttonText}>Login</Text>
+          </TouchableOpacity>
 
-  return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Login</Text>
-      <TextInput
-        style={getInputStyle(errors.email)}
-        placeholder='Email'
-        keyboardType='email-address' // for showing the email keyboard
-        autoCapitalize='none'
-        value={emailPass.email}
-        id='email'
-        onChangeText={(text) => setEmailPass({ ...emailPass, email: text })}
-      ></TextInput>
-      {errors.email && <Text>{errors.email}</Text>}
-      <Text style={styles.title}>Password</Text>
-      <TextInput
-        style={getInputStyle(errors.password)}
-        placeholder='Password'
-        secureTextEntry // hides the password input
-        autoCapitalize='none'
-        value={emailPass.password}
-        id='password'
-        onChangeText={(text) => setEmailPass({ ...emailPass, password: text })}
-      ></TextInput>
-      {errors.password && <Text>{errors.password}</Text>}
-      <TouchableOpacity style={styles.button} onPress={handleLogin}>
-        <Text style={styles.buttonText}>Login</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity>
-        <Text style={styles.forgotText}>Forgot your password?</Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        onPress={() => console.log('Navigate to Create Account screen')}
-      >
-        <Text style={styles.createAccountLink}>Create an Account</Text>
-      </TouchableOpacity>
-    </View>
-  );
+          <TouchableOpacity>
+            <Text style={styles.forgotText}>Forgot your password?</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => setLogOrReg('reg')}>
+            <Text style={styles.createAccountLink}>Create an Account</Text>
+          </TouchableOpacity>
+        </ScrollView>
+      );
+    } else {
+      return <Register setLogOrReg={setLogOrReg}/>;
+    }
+  };
+  return logReg();
 };
 export default LoginScreen;
 
 const styles = StyleSheet.create({
-  container: {
+  contentContainer: {
     flex: 1,
     justifyContent: 'center',
     padding: 24,
@@ -130,6 +138,8 @@ const styles = StyleSheet.create({
     paddingLeft: 16,
     backgroundColor: '#fff',
     fontSize: 16,
+    marginHorizontal: 20,
+    maxWidth: '90%',   
   },
   inputError: {
     borderColor: '#ff7675',
@@ -154,6 +164,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 16,
+    marginHorizontal: 20
   },
   buttonText: {
     color: '#fff',
