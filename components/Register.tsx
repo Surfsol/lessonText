@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import {
   TouchableOpacity,
-  View,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
 } from 'react-native';
+import { createHash } from '@/utils/bcrypt';
 
 interface SetLogOrRegProps {
   setLogOrReg: React.Dispatch<React.SetStateAction<string>>;
@@ -17,14 +17,15 @@ interface UserInfo {
   email: string;
   native_language: string;
   target_language: string;
-  password_hash: string;
+  password: string;
+  password_hash: string | null;
 }
 interface Errors {
   user_name: string | null;
   email: string | null;
   native_language: string | null;
   target_language: string | null;
-  password_hash: string | null;
+  password: string | null;
 }
 
 const Register: React.FC<SetLogOrRegProps> = ({ setLogOrReg }) => {
@@ -33,24 +34,25 @@ const Register: React.FC<SetLogOrRegProps> = ({ setLogOrReg }) => {
     email: '',
     native_language: '',
     target_language: '',
-    password_hash: '',
+    password: '',
+    password_hash: null,
   });
   const [errors, setErrors] = useState<Errors>({
     user_name: null,
     email: null,
     native_language: null,
     target_language: null,
-    password_hash: null,
+    password: null,
   });
-  const [isFormValid, setIsFormValid] = useState<boolean>(false);
 
   const validateForm = () => {
+    console.log('validate form');
     let validationErrors: Errors = {
       user_name: null,
       email: null,
       native_language: null,
       target_language: null,
-      password_hash: null,
+      password: null,
     };
 
     if (!userInfo.user_name) {
@@ -67,24 +69,34 @@ const Register: React.FC<SetLogOrRegProps> = ({ setLogOrReg }) => {
     if (!userInfo.target_language) {
       validationErrors.target_language = 'Target language is required.';
     }
-    if (!userInfo.password_hash) {
-      validationErrors.password_hash = 'Password is required.';
-    } else if (userInfo.password_hash.length < 6) {
-      validationErrors.password_hash =
-        'Password must be at least 6 characters.';
+    if (!userInfo.password) {
+      validationErrors.password = 'Password is required.';
+    } else if (userInfo.password.length < 6) {
+      validationErrors.password = 'Password must be at least 6 characters.';
     }
 
     setErrors(validationErrors);
-    setIsFormValid(
-      Object.values(validationErrors).every((error) => error === null)
+    console.log({ validationErrors });
+    let result = Object.values(validationErrors).every(
+      (error) => error === null
     );
+    return result
   };
 
-  const handleRegister = () => {
-    validateForm();
-    if (isFormValid) {
+  const handleRegister = async () => {
+    console.log(userInfo);
+    const validForm = await validateForm();
+    if (validForm) {
+      console.log('in is valid');
       // Submit the form
+      userInfo.password_hash = await createHash(userInfo.password);
+      if (userInfo.password_hash) {
+        //verify
+        console.log(userInfo.password_hash);
+      }
       console.log('Registration data:', userInfo);
+    } else {
+      console.log('form not valid false');
     }
   };
 
@@ -142,17 +154,15 @@ const Register: React.FC<SetLogOrRegProps> = ({ setLogOrReg }) => {
       )}
 
       <TextInput
-        style={getInputStyle(errors.password_hash)}
+        style={getInputStyle(errors.password)}
         placeholder='Password'
         secureTextEntry
         autoCapitalize='none'
-        value={userInfo.password_hash}
-        onChangeText={(text) =>
-          setUserInfo({ ...userInfo, password_hash: text })
-        }
+        value={userInfo.password}
+        onChangeText={(text) => setUserInfo({ ...userInfo, password: text })}
       />
-      {errors.password_hash && (
-        <Text style={styles.errorText}>{errors.password_hash}</Text>
+      {errors.password && (
+        <Text style={styles.errorText}>{errors.password}</Text>
       )}
       <TouchableOpacity style={styles.button} onPress={handleRegister}>
         <Text style={styles.buttonText}>Register</Text>
@@ -167,7 +177,7 @@ const Register: React.FC<SetLogOrRegProps> = ({ setLogOrReg }) => {
 export default Register;
 
 const styles = StyleSheet.create({
-    contentContainer: {
+  contentContainer: {
     flex: 1,
     justifyContent: 'center',
     padding: 24,
@@ -190,7 +200,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     fontSize: 16,
     marginHorizontal: 20,
-    maxWidth: '90%',   
+    maxWidth: '90%',
   },
   inputError: {
     borderColor: '#ff7675',

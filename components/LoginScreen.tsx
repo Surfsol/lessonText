@@ -7,6 +7,7 @@ import {
   TextInput,
 } from 'react-native';
 import Register from './Register';
+import { createHash } from '@/utils/bcrypt';
 
 interface LoginScreenProps {
   setUserLogin: React.Dispatch<React.SetStateAction<Object | undefined>>;
@@ -15,6 +16,7 @@ interface LoginScreenProps {
 interface EmailPass {
   email: string;
   password: string;
+  password_hash: string;
 }
 
 interface Errors {
@@ -26,14 +28,19 @@ const LoginScreen: React.FC<LoginScreenProps> = () => {
   const [emailPass, setEmailPass] = useState<EmailPass>({
     email: '',
     password: '',
+    password_hash: ''
   });
   const [isFormValid, setIsFormValid] = useState<boolean>(false);
   const [errors, setErrors] = useState<Errors>({ email: null, password: null });
   const [logOrReg, setLogOrReg] = useState<string>('logIn');
-  const handleLogin = () => {
+  const handleLogin = async() => {
     validateForm();
     if (isFormValid) {
       // Submit form
+      emailPass.password_hash = await createHash(emailPass.password)
+      if(emailPass.password_hash){
+        //verify 
+      }
     }
   };
 
