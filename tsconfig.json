@@ -16,23 +16,3 @@
     "components/FileSystem/downloadFiles.ts",
     "types/**/*.d.ts"]
 }
-// {
-//   "compilerOptions": {
-//     "strict": true,
-//     "target": "esnext",
-//     "module": "esnext",
-//     "jsx": "react-native",
-//     "lib": ["es6", "dom"],
-//     "skipLibCheck": true,
-//     "paths": {
-//       "@/*": ["./*"]
-//     },
-//     "allowSyntheticDefaultImports": true,
-//     "esModuleInterop": true
-//   },
-//   "include": [
-//     "**/*.ts",
-//     "**/*.tsx",
-//     "components/FileSystem/DownloadFiles.ts"
-//   ]
-// }
