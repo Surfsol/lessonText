@@ -7,6 +7,8 @@ import {
   TextInput,
 } from 'react-native';
 import { createHash } from '@/utils/bcrypt';
+import { signUp } from '@/services/crudSupaBase';
+import AuthModal from './authModal';
 
 interface SetLogOrRegProps {
   setLogOrReg: React.Dispatch<React.SetStateAction<string>>;
@@ -15,44 +17,38 @@ interface SetLogOrRegProps {
 interface UserInfo {
   user_name: string;
   email: string;
-  native_language: string;
-  target_language: string;
   password: string;
   password_hash: string | null;
 }
 interface Errors {
   user_name: string | null;
   email: string | null;
-  native_language: string | null;
-  target_language: string | null;
   password: string | null;
+  auth: string | null;
 }
 
 const Register: React.FC<SetLogOrRegProps> = ({ setLogOrReg }) => {
   const [userInfo, setUserInfo] = useState<UserInfo>({
     user_name: '',
     email: '',
-    native_language: '',
-    target_language: '',
     password: '',
     password_hash: null,
   });
   const [errors, setErrors] = useState<Errors>({
     user_name: null,
     email: null,
-    native_language: null,
-    target_language: null,
     password: null,
+    auth: null,
   });
+  const [isVisible, setIsVisible] = useState<boolean>(false);
 
   const validateForm = () => {
     console.log('validate form');
     let validationErrors: Errors = {
       user_name: null,
       email: null,
-      native_language: null,
-      target_language: null,
       password: null,
+      auth: null,
     };
 
     if (!userInfo.user_name) {
@@ -62,12 +58,6 @@ const Register: React.FC<SetLogOrRegProps> = ({ setLogOrReg }) => {
       validationErrors.email = 'Email is required.';
     } else if (!/\S+@\S+\.\S+/.test(userInfo.email)) {
       validationErrors.email = 'Email is invalid.';
-    }
-    if (!userInfo.native_language) {
-      validationErrors.native_language = 'Native language is required.';
-    }
-    if (!userInfo.target_language) {
-      validationErrors.target_language = 'Target language is required.';
     }
     if (!userInfo.password) {
       validationErrors.password = 'Password is required.';
@@ -80,7 +70,7 @@ const Register: React.FC<SetLogOrRegProps> = ({ setLogOrReg }) => {
     let result = Object.values(validationErrors).every(
       (error) => error === null
     );
-    return result
+    return result;
   };
 
   const handleRegister = async () => {
@@ -89,12 +79,18 @@ const Register: React.FC<SetLogOrRegProps> = ({ setLogOrReg }) => {
     if (validForm) {
       console.log('in is valid');
       // Submit the form
-      userInfo.password_hash = await createHash(userInfo.password);
-      if (userInfo.password_hash) {
-        //verify
-        console.log(userInfo.password_hash);
+      //userInfo.password_hash = await createHash(userInfo.password);
+      const { success, data, message } = await signUp(
+        userInfo.email,
+        userInfo.password
+      );
+      if (success) {
+        console.log({ data });
+      } else {
+        console.log({ message });
+        setErrors({ ...errors, auth: String(message) });
+        setIsVisible(true);
       }
-      console.log('Registration data:', userInfo);
     } else {
       console.log('form not valid false');
     }
@@ -105,72 +101,62 @@ const Register: React.FC<SetLogOrRegProps> = ({ setLogOrReg }) => {
     error ? styles.inputError : {},
   ];
 
+  const onCloseModal = () => {
+    setErrors({ ...errors, auth: null });
+    setIsVisible(false);
+  };
+ 
   return (
-    <ScrollView contentContainerStyle={styles.contentContainer}>
-      <Text style={styles.title}>Create Account</Text>
+    <>
+      <ScrollView contentContainerStyle={styles.contentContainer}>
+        <Text style={styles.title}>Create Account</Text>
 
-      <TextInput
-        style={getInputStyle(errors.user_name)}
-        placeholder='Create a User Name'
-        value={userInfo.user_name}
-        onChangeText={(text) => setUserInfo({ ...userInfo, user_name: text })}
-      />
-      {errors.user_name && (
-        <Text style={styles.errorText}>{errors.user_name}</Text>
+        <TextInput
+          style={getInputStyle(errors.user_name)}
+          placeholder='Create a User Name'
+          value={userInfo.user_name}
+          onChangeText={(text) => setUserInfo({ ...userInfo, user_name: text })}
+        />
+        {errors.user_name && (
+          <Text style={styles.errorText}>{errors.user_name}</Text>
+        )}
+
+        <TextInput
+          style={getInputStyle(errors.email)}
+          placeholder='Email'
+          keyboardType='email-address'
+          autoCapitalize='none'
+          value={userInfo.email}
+          onChangeText={(text) => setUserInfo({ ...userInfo, email: text })}
+        />
+        {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
+
+        <TextInput
+          style={getInputStyle(errors.password)}
+          placeholder='Password'
+          secureTextEntry
+          autoCapitalize='none'
+          value={userInfo.password}
+          onChangeText={(text) => setUserInfo({ ...userInfo, password: text })}
+        />
+        {errors.password && (
+          <Text style={styles.errorText}>{errors.password}</Text>
+        )}
+        <TouchableOpacity style={styles.button} onPress={handleRegister}>
+          <Text style={styles.buttonText}>Register</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => setLogOrReg('logIn')}>
+          <Text style={styles.logInLink}>Login</Text>
+        </TouchableOpacity>
+      </ScrollView>
+      {isVisible === true && (
+        <AuthModal
+          isVisible={isVisible}
+          onCloseModal={onCloseModal}
+          message={errors.auth || ''}
+        />
       )}
-
-      <TextInput
-        style={getInputStyle(errors.email)}
-        placeholder='Email'
-        keyboardType='email-address'
-        autoCapitalize='none'
-        value={userInfo.email}
-        onChangeText={(text) => setUserInfo({ ...userInfo, email: text })}
-      />
-      {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
-
-      <TextInput
-        style={getInputStyle(errors.native_language)}
-        placeholder='Native Language'
-        value={userInfo.native_language}
-        onChangeText={(text) =>
-          setUserInfo({ ...userInfo, native_language: text })
-        }
-      />
-      {errors.native_language && (
-        <Text style={styles.errorText}>{errors.native_language}</Text>
-      )}
-
-      <TextInput
-        style={getInputStyle(errors.target_language)}
-        placeholder='Target Language'
-        value={userInfo.target_language}
-        onChangeText={(text) =>
-          setUserInfo({ ...userInfo, target_language: text })
-        }
-      />
-      {errors.target_language && (
-        <Text style={styles.errorText}>{errors.target_language}</Text>
-      )}
-
-      <TextInput
-        style={getInputStyle(errors.password)}
-        placeholder='Password'
-        secureTextEntry
-        autoCapitalize='none'
-        value={userInfo.password}
-        onChangeText={(text) => setUserInfo({ ...userInfo, password: text })}
-      />
-      {errors.password && (
-        <Text style={styles.errorText}>{errors.password}</Text>
-      )}
-      <TouchableOpacity style={styles.button} onPress={handleRegister}>
-        <Text style={styles.buttonText}>Register</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={() => setLogOrReg('logIn')}>
-        <Text style={styles.logInLink}>Login</Text>
-      </TouchableOpacity>
-    </ScrollView>
+    </>
   );
 };
 

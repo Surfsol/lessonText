@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import Register from './Register';
 import { createHash } from '@/utils/bcrypt';
+import { getSB } from '@/services/supabase';
 
 interface LoginScreenProps {
   setUserLogin: React.Dispatch<React.SetStateAction<Object | undefined>>;
@@ -16,7 +17,7 @@ interface LoginScreenProps {
 interface EmailPass {
   email: string;
   password: string;
-  password_hash: string;
+  password_hash: string | undefined;
 }
 
 interface Errors {
@@ -30,26 +31,15 @@ const LoginScreen: React.FC<LoginScreenProps> = () => {
     password: '',
     password_hash: ''
   });
-  const [isFormValid, setIsFormValid] = useState<boolean>(false);
+ // const [isFormValid, setIsFormValid] = useState<boolean>(false);
   const [errors, setErrors] = useState<Errors>({ email: null, password: null });
   const [logOrReg, setLogOrReg] = useState<string>('logIn');
-  const handleLogin = async() => {
-    validateForm();
-    if (isFormValid) {
-      // Submit form
-      emailPass.password_hash = await createHash(emailPass.password)
-      if(emailPass.password_hash){
-        //verify 
-      }
-    }
-  };
+ 
 
-  useEffect(() => {
-    // Trigger form validation when name,
-    // email, or password changes
-  }, [emailPass]);
+ 
 
   const validateForm = () => {
+    console.log('in validate form')
     let errors: Errors = { email: null, password: null };
 
     // Validate email field
@@ -67,9 +57,39 @@ const LoginScreen: React.FC<LoginScreenProps> = () => {
     }
 
     // Set the errors and update form validity
-    setErrors(errors);
-    setIsFormValid(Object.keys(errors).length === 0);
+    //setErrors(errors);
+   // console.log('errors', Object.values(errors).length, {errors}, Object.values(errors))
+    let arr = []
+    let valuesArray = Object.values(errors)
+    console.log({valuesArray})
+    for(let i=0; i < valuesArray.length; i++){
+      if(valuesArray[i] != null) arr.push(valuesArray[i])
+    }
+  console.log({arr})
+    if (arr.length === 0) {
+      return 'valid'
+    } 
+    if (arr.length > 0) {
+      return 'notValid'
+    } 
   };
+
+  const handleLogin = async() => {
+    console.log('in handle')
+    const isFormValid = await validateForm();
+    console.log({isFormValid})
+    if (isFormValid === 'valid') {
+      // Submit form
+      emailPass.password_hash = await createHash(emailPass.password)
+      console.log(emailPass.password_hash)
+      if(emailPass.password_hash){
+        //verify 
+        const tableFetch = getSB('Users')
+        console.log({tableFetch})
+      }
+    }
+  };
+
   const getInputStyle = (error: string | null) => [
     styles.input,
     error ? styles.inputError : {},
@@ -88,7 +108,7 @@ const LoginScreen: React.FC<LoginScreenProps> = () => {
             id='email'
             onChangeText={(text) => setEmailPass({ ...emailPass, email: text })}
           ></TextInput>
-          {errors.email && <Text>{errors.email}</Text>}
+          {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
           <Text style={styles.title}>Password</Text>
           <TextInput
             style={getInputStyle(errors.password)}
@@ -101,7 +121,7 @@ const LoginScreen: React.FC<LoginScreenProps> = () => {
               setEmailPass({ ...emailPass, password: text })
             }
           ></TextInput>
-          {errors.password && <Text>{errors.password}</Text>}
+          {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
           <TouchableOpacity style={styles.button} onPress={handleLogin}>
             <Text style={styles.buttonText}>Login</Text>
           </TouchableOpacity>
@@ -145,7 +165,7 @@ const styles = StyleSheet.create({
     paddingLeft: 16,
     backgroundColor: '#fff',
     fontSize: 16,
-    marginHorizontal: 20,
+    marginHorizontal: 25,
     maxWidth: '90%',   
   },
   inputError: {
@@ -162,7 +182,7 @@ const styles = StyleSheet.create({
     color: '#ff7675',
     fontSize: 14,
     marginBottom: 12,
-    marginLeft: 4,
+    marginHorizontal: 32,
   },
   button: {
     backgroundColor: '#4c8bf5',
