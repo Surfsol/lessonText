@@ -1,14 +1,13 @@
 import { createClient } from '@supabase/supabase-js';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 // Create a single supabase client for interacting with your database
 const url = process.env.EXPO_PUBLIC_SUPABASE_URL || '';
 const key = process.env.EXPO_PUBLIC_SUPABASE_KEY || '';
-const supabase = createClient(url, key);
+const supabase = createClient(url, key, {
+    auth: {
+      storage: AsyncStorage, // Persist user session
+    },
+  });
 
-const getSB = async (table: string) => {
-  const { data, error } = await supabase.from(table).select();
-  console.log({data, error})
-};
-const postSB = () => {};
+export {supabase}
 
-export {getSB, postSB}
