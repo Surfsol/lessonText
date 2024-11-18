@@ -33,6 +33,7 @@ export default function ButtonSpeech() {
   useEffect(() => {
     loginLocalKey(setUserLogin)
   }, [])
+  
   useEffect(() => {
     // Fetch the available voices when the component mounts
     Speech.getAvailableVoicesAsync().then((voices) => {

@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import { createHash } from '@/utils/bcrypt';
 import { signUp } from '@/services/crudSupaBase';
-import AuthModal from './authModal';
+import AuthModal from './AuthModal';
 
 interface SetLogOrRegProps {
   setLogOrReg: React.Dispatch<React.SetStateAction<string>>;
@@ -86,6 +86,7 @@ const Register: React.FC<SetLogOrRegProps> = ({ setLogOrReg }) => {
       );
       if (success) {
         console.log({ data });
+        // save to local storage
       } else {
         console.log({ message });
         setErrors({ ...errors, auth: String(message) });
