@@ -1,18 +1,21 @@
-import { Modal, View, Text, Pressable, StyleSheet } from 'react-native';
+import { Modal, View, Text, Pressable, StyleSheet, TouchableOpacity } from 'react-native';
 import React from 'react';
 
 interface AuthModalProps {
   isVisible: boolean;
   onCloseModal: () => void;
   message: string;
+  isLogin?: boolean | null
+  setLogOrReg? : React.Dispatch<React.SetStateAction<string>> | null
 }
 
 const AuthModal: React.FC<AuthModalProps> = ({
   isVisible,
   onCloseModal,
   message,
+  isLogin,
+  setLogOrReg
 }) => {
-  console.log('in auth moooo', isVisible);
   return (
     <Modal transparent={true} visible={isVisible} animationType="slide">
       {/* Background overlay */}
@@ -22,6 +25,9 @@ const AuthModal: React.FC<AuthModalProps> = ({
           <View style={styles.titleContainer}>
             <Text style={styles.title}>{message}</Text>
           </View>
+          {isLogin && typeof setLogOrReg === 'function'  && <TouchableOpacity onPress={() => setLogOrReg('reg')}>
+              <Text style={styles.createAccountLink}>Create an Account</Text>
+            </TouchableOpacity>}
           <Pressable style={styles.button} onPress={onCloseModal}>
             <Text style={styles.buttonText}>Close</Text>
           </Pressable>
@@ -57,6 +63,13 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     textAlign: 'center',
+  },
+  createAccountLink: {
+    color: '#007bff',
+    textAlign: 'center',
+    marginVertical: 12,
+    fontSize: 28,
+    textDecorationLine: 'underline',
   },
   button: {
     marginTop: 20,

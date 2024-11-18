@@ -7,8 +7,8 @@ import {
   TextInput,
 } from 'react-native';
 import Register from './Register';
-import { createHash } from '@/utils/bcrypt';
-import { getSB } from '@/services/supabase';
+import AuthModal from './AuthModal';
+import { authUser } from '@/services/crudSupaBase';
 
 interface LoginScreenProps {
   setUserLogin: React.Dispatch<React.SetStateAction<Object | undefined>>;
@@ -25,21 +25,20 @@ interface Errors {
   password: string | null;
 }
 
-const LoginScreen: React.FC<LoginScreenProps> = () => {
+const LoginScreen: React.FC<LoginScreenProps> = ({ setUserLogin }) => {
   const [emailPass, setEmailPass] = useState<EmailPass>({
     email: '',
     password: '',
-    password_hash: ''
+    password_hash: '',
   });
- // const [isFormValid, setIsFormValid] = useState<boolean>(false);
+  // const [isFormValid, setIsFormValid] = useState<boolean>(false);
   const [errors, setErrors] = useState<Errors>({ email: null, password: null });
   const [logOrReg, setLogOrReg] = useState<string>('logIn');
- 
-
- 
-
+  const [isVisible, setIsVisible] = useState<boolean>(false);
+  const [logInError, setLogInError] = useState<string>('');
+  const isLogin = true
   const validateForm = () => {
-    console.log('in validate form')
+    console.log('in validate form');
     let errors: Errors = { email: null, password: null };
 
     // Validate email field
@@ -58,34 +57,39 @@ const LoginScreen: React.FC<LoginScreenProps> = () => {
 
     // Set the errors and update form validity
     //setErrors(errors);
-   // console.log('errors', Object.values(errors).length, {errors}, Object.values(errors))
-    let arr = []
-    let valuesArray = Object.values(errors)
-    console.log({valuesArray})
-    for(let i=0; i < valuesArray.length; i++){
-      if(valuesArray[i] != null) arr.push(valuesArray[i])
+    // console.log('errors', Object.values(errors).length, {errors}, Object.values(errors))
+    let arr = [];
+    let valuesArray = Object.values(errors);
+    for (let i = 0; i < valuesArray.length; i++) {
+      if (valuesArray[i] != null) arr.push(valuesArray[i]);
     }
-  console.log({arr})
     if (arr.length === 0) {
-      return 'valid'
-    } 
+      return 'valid';
+    }
     if (arr.length > 0) {
-      return 'notValid'
-    } 
+      return 'notValid';
+    }
   };
-
-  const handleLogin = async() => {
-    console.log('in handle')
+  const onCloseModal = () => {
+    setIsVisible(false);
+  };
+  const handleLogin = async () => {
+    console.log('in handle');
+    // check for valid email and password 
     const isFormValid = await validateForm();
-    console.log({isFormValid})
     if (isFormValid === 'valid') {
       // Submit form
-      emailPass.password_hash = await createHash(emailPass.password)
-      console.log(emailPass.password_hash)
-      if(emailPass.password_hash){
-        //verify 
-        const tableFetch = getSB('Users')
-        console.log({tableFetch})
+      const { success, user, message } = await authUser(
+        emailPass.email,
+        emailPass.password
+      );
+      console.log(success, user, message);
+      if (success) {
+        //verify
+        setUserLogin(user);
+      } else if (message) {
+        setLogInError(message);
+        setIsVisible(true);
       }
     }
   };
@@ -94,48 +98,66 @@ const LoginScreen: React.FC<LoginScreenProps> = () => {
     styles.input,
     error ? styles.inputError : {},
   ];
+  console.log({logOrReg})
   const logReg = () => {
     if (logOrReg === 'logIn') {
       return (
-        <ScrollView contentContainerStyle={styles.contentContainer}>
-          <Text style={styles.title}>Login</Text>
-          <TextInput
-            style={getInputStyle(errors.email)}
-            placeholder='Email'
-            keyboardType='email-address' // for showing the email keyboard
-            autoCapitalize='none'
-            value={emailPass.email}
-            id='email'
-            onChangeText={(text) => setEmailPass({ ...emailPass, email: text })}
-          ></TextInput>
-          {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
-          <Text style={styles.title}>Password</Text>
-          <TextInput
-            style={getInputStyle(errors.password)}
-            placeholder='Password'
-            secureTextEntry // hides the password input
-            autoCapitalize='none'
-            value={emailPass.password}
-            id='password'
-            onChangeText={(text) =>
-              setEmailPass({ ...emailPass, password: text })
-            }
-          ></TextInput>
-          {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
-          <TouchableOpacity style={styles.button} onPress={handleLogin}>
-            <Text style={styles.buttonText}>Login</Text>
-          </TouchableOpacity>
+        <>
+          <ScrollView contentContainerStyle={styles.contentContainer}>
+            <Text style={styles.title}>Login</Text>
+            <TextInput
+              style={getInputStyle(errors.email)}
+              placeholder='Email'
+              keyboardType='email-address' // for showing the email keyboard
+              autoCapitalize='none'
+              value={emailPass.email}
+              id='email'
+              onChangeText={(text) =>
+                setEmailPass({ ...emailPass, email: text })
+              }
+            ></TextInput>
+            {errors.email && (
+              <Text style={styles.errorText}>{errors.email}</Text>
+            )}
+            <Text style={styles.title}>Password</Text>
+            <TextInput
+              style={getInputStyle(errors.password)}
+              placeholder='Password'
+              secureTextEntry // hides the password input
+              autoCapitalize='none'
+              value={emailPass.password}
+              id='password'
+              onChangeText={(text) =>
+                setEmailPass({ ...emailPass, password: text })
+              }
+            ></TextInput>
+            {errors.password && (
+              <Text style={styles.errorText}>{errors.password}</Text>
+            )}
+            <TouchableOpacity style={styles.button} onPress={handleLogin}>
+              <Text style={styles.buttonText}>Login</Text>
+            </TouchableOpacity>
 
-          <TouchableOpacity>
-            <Text style={styles.forgotText}>Forgot your password?</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => setLogOrReg('reg')}>
-            <Text style={styles.createAccountLink}>Create an Account</Text>
-          </TouchableOpacity>
-        </ScrollView>
+            <TouchableOpacity>
+              <Text style={styles.forgotText}>Forgot your password?</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => setLogOrReg('reg')}>
+              <Text style={styles.createAccountLink}>Create an Account</Text>
+            </TouchableOpacity>
+          </ScrollView>
+          {isVisible === true && (
+            <AuthModal
+              isVisible={isVisible}
+              onCloseModal={onCloseModal}
+              message={logInError || ''}
+              isLogin={isLogin}
+              setLogOrReg={setLogOrReg}
+            />
+          )}
+        </>
       );
     } else {
-      return <Register setLogOrReg={setLogOrReg}/>;
+      return <Register setLogOrReg={setLogOrReg} />;
     }
   };
   return logReg();
@@ -166,7 +188,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     fontSize: 16,
     marginHorizontal: 25,
-    maxWidth: '90%',   
+    maxWidth: '90%',
   },
   inputError: {
     borderColor: '#ff7675',
@@ -191,7 +213,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 16,
-    marginHorizontal: 20
+    marginHorizontal: 20,
   },
   buttonText: {
     color: '#fff',
