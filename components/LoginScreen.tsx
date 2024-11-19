@@ -157,7 +157,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ setUserLogin }) => {
         </>
       );
     } else {
-      return <Register setLogOrReg={setLogOrReg} />;
+      return <Register setLogOrReg={setLogOrReg} setUserLogin={setUserLogin}/>;
     }
   };
   return logReg();
