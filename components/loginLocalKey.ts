@@ -12,6 +12,7 @@ const loginLocalKey = async (
       console.log({ value });
       // value previously stored
       setUserLogin(JSON.parse(value));
+      // check to see if saved in AsyncStorage
     }
   } catch (e) {
     // error reading value

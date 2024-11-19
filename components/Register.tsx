@@ -6,12 +6,12 @@ import {
   Text,
   TextInput,
 } from 'react-native';
-import { createHash } from '@/utils/bcrypt';
 import { signUp } from '@/services/crudSupaBase';
 import AuthModal from './AuthModal';
 
 interface SetLogOrRegProps {
   setLogOrReg: React.Dispatch<React.SetStateAction<string>>;
+  setUserLogin: React.Dispatch<React.SetStateAction<object>>
 }
 
 interface UserInfo {
@@ -27,7 +27,7 @@ interface Errors {
   auth: string | null;
 }
 
-const Register: React.FC<SetLogOrRegProps> = ({ setLogOrReg }) => {
+const Register: React.FC<SetLogOrRegProps> = ({ setLogOrReg, setUserLogin }) => {
   const [userInfo, setUserInfo] = useState<UserInfo>({
     user_name: '',
     email: '',
@@ -84,9 +84,10 @@ const Register: React.FC<SetLogOrRegProps> = ({ setLogOrReg }) => {
         userInfo.email,
         userInfo.password
       );
-      if (success) {
+      if (success && data) {
         console.log({ data });
         // save to local storage
+        setUserLogin(data)
       } else {
         console.log({ message });
         setErrors({ ...errors, auth: String(message) });
