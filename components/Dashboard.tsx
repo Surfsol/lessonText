@@ -1,26 +1,25 @@
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import React from 'react';
+import {
+  Modal,
+  View,
+  Text,
+  Pressable,
+  StyleSheet,
+  TouchableOpacity,
+} from 'react-native';
+import Evaluation from './Evaluation';
 
-import EditScreenInfo from '@/components/EditScreenInfo';
-import { Text, View } from '@/components/Themed';
-
-export default function TabTwoScreen() {
-  return (
-    <View style={styles.card}>
-        
-        
-      <Text style={styles.cardText}>
-        Ready to evaluate your speaking level?
-      </Text>
-      <TouchableOpacity
-        style={styles.button}
-        // onPress={}
-      >
-        <Text style={styles.buttonText}>Evaluate Speaking</Text>
-      </TouchableOpacity>
-    </View>
-  );
+interface DashboardProps {
+  userLogin: string | undefined;
+  setUserLogin: React.Dispatch<React.SetStateAction<string | undefined>>;
 }
 
+const Dashboard: React.FC<DashboardProps> = ({ userLogin, setUserLogin }) => {
+  return (
+    <Evaluation userLogin={userLogin}/>
+  );
+};
+export default Dashboard;
 
 const styles = StyleSheet.create({
   container: {

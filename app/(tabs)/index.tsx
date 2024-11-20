@@ -7,7 +7,7 @@ import Record from '@/components/Record';
 import { textLanguage } from '@/assets/textTranslate/textLanguage';
 import LoginScreen from '@/components/LoginScreen';
 import loginLocalKey from '@/components/loginLocalKey';
-
+import Dashboard from '@/components/Dashboard';
 
 export default function ButtonSpeech() {
   const [availableVoices, setAvailableVoices] = useState<Speech.Voice[]>([]);
@@ -47,7 +47,7 @@ export default function ButtonSpeech() {
     if(userLogin === undefined){
       //Login screen
       return(
-        <LoginScreen setUserLogin={setUserLogin}/>
+        <Dashboard setUserLogin={setUserLogin} userLogin={userLogin}/>
       )
     } else {
       return (
@@ -86,6 +86,3 @@ const styles = StyleSheet.create({
     width: '80%',
   },
 });
-
-// {"voices": [{"identifier": "ur-PK-language", "language": "ur-PK", "name": "ur-PK-language", "quality": "Enhanced"}, {"identifier": "kn-in-x-knm-network", "language": "kn-IN", "name": "kn-in-x-knm-network", "quality": "Enhanced"}, {"identifier": "ru-ru-x-rud-local", "language": "ru-RU", "name": "ru-ru-x-rud-local", "quality": "Enhanced"}, {"identifier": "sv-se-x-lfs-local", "language": "sv-SE", "name": "sv-se-x-lfs-local", "quality": "Enhanced"}, {"identifier": "cmn-tw-x-ctc-network", "language": "zh-TW", "name": "cmn-tw-x-ctc-network", "quality": "Enhanced"}, {"identifier": "pt-br-x-afs-network", "language": "pt-BR", "name": "pt-br-x-afs-network", "quality": "Enhanced"}, {"identifier": "bn-BD-language", "language": "bn-BD", "name": "bn-BD-language", "quality": "Enhanced"}, {"identifier": "pt-pt-x-sfs-network", "language": "pt-PT", "name": "pt-pt-x-sfs-network", "quality": "Enhanced"}, {"identifier": "en-in-x-ene-network", "language": "en-IN", "name": "en-in-x-ene-network", "quality": "Enhanced"}, {"identifier": "vi-vn-x-vid-network", 
-// "language": "vi-VN", "name": "vi-vn-x-vid-network", "quality": "Enhanced"}, {"identifier": "yue-hk-x-yud-network", "language": "yue-HK", "name": "yue-hk-x-yud-network", "quality": "Enhanced"}, {"identifier": "en-gb-x-gba-network", "language": "en-GB", "name": "en-gb-x-gba-network", "quality": "Enhanced"}, {"identifier": "pl-pl-x-bmg-network", "language": "pl-PL", "name": "pl-pl-x-bmg-network", "quality"
