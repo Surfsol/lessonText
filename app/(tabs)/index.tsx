@@ -7,7 +7,7 @@ import Record from '@/components/Record';
 import { textLanguage } from '@/assets/textTranslate/textLanguage';
 import LoginScreen from '@/components/LoginScreen';
 import loginLocalKey from '@/components/loginLocalKey';
-import Dashboard from '@/components/Dashboard';
+import Dashboard from '@/app/dashboard';
 
 export default function ButtonSpeech() {
   const [availableVoices, setAvailableVoices] = useState<Speech.Voice[]>([]);
