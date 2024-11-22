@@ -26,7 +26,7 @@ const Dashboard: React.FC<DashboardProps> = ({ userLogin, setUserLogin }) => {
           </Text>
         </View>
         </TouchableOpacity>
-      <TouchableOpacity onPress={() => router.push('/evaluation')}>
+      <TouchableOpacity onPress={() => router.push('/travel')}>
         <View style={dashCardStyles.card}>
           <Text style={dashCardStyles.cardText}>Travel</Text>
         </View>
