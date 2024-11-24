@@ -5,7 +5,7 @@ import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
-
+import { AutocompleteDropdownContextProvider } from 'react-native-autocomplete-dropdown';
 import { useColorScheme } from '@/components/useColorScheme';
 
 export {
@@ -50,10 +50,12 @@ function RootLayoutNav() {
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+      <AutocompleteDropdownContextProvider>
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
       </Stack>
+      </AutocompleteDropdownContextProvider>
     </ThemeProvider>
   );
 }

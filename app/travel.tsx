@@ -1,26 +1,53 @@
-import React, { useState } from 'react';
+import React, { useRef, memo, useCallback, useState } from 'react';
 import {
   View,
   Text,
-  TextInput,
   StyleSheet,
-  TouchableOpacity,
 } from 'react-native';
-import dashCardStyles from '@/styles/dashboardCardStyles';
-import Autocomplete from 'react-native-autocomplete-input';
-//import { ScrollView } from 'react-native-reanimated/lib/typescript/Animated';
+import { AutocompleteDropdown } from 'react-native-autocomplete-dropdown';
+
+import { KeyboardAvoidingView, Platform } from 'react-native';
 
 interface TravelProps {
   userLogin: string | undefined;
 }
-
-const countryList = ['United States', 'Canada', 'Brazil', 'France', 'Germany']; // Add your full list
-const cityList = {
-  'United States': ['New York', 'Los Angeles', 'Chicago'],
-  Canada: ['Toronto', 'Vancouver', 'Montreal'],
-  Brazil: ['São Paulo', 'Rio de Janeiro', 'Brasília'],
-  France: ['Paris', 'Lyon', 'Marseille'],
-  Germany: ['Berlin', 'Munich', 'Frankfurt'],
+interface AutocompleteDropdownItem {
+  id: string;
+  title?: string | null;
+}
+const countryList = [
+  { id: '1', title: 'United States' },
+  { id: '2', title: 'Canada' },
+  { id: '3', title: 'Brazil' },
+  { id: '4', title: 'France' },
+  { id: '5', title: 'Germany' },
+];
+const cityList: { [key: string]: { id: string; title: string }[] }  = {
+  'United States': [
+    { id: '1', title: 'New York' },
+    { id: '2', title: 'Los Angeles' },
+    { id: '3', title: 'Chicago' },
+  ],
+  'Canada': [
+    { id: '1', title: 'Toronto' },
+    { id: '2', title: 'Vancouver' },
+    { id: '3', title: 'Montreal' },
+  ],
+  Brazil: [
+    { id: '1', title: 'São Paulo' },
+    { id: '2', title: 'Rio de Janeiro' },
+    { id: '3', title: 'Brasília' },
+  ],
+  France: [
+    { id: '1', title: 'Paris' },
+    { id: '2', title: 'Lyon' },
+    { id: '3', title: 'Marseille' },
+  ],
+  Germany: [
+    { id: '1', title: 'Berlin' },
+    { id: '2', title: 'Munich' },
+    { id: '3', title: 'Frankfurt' },
+  ],
 };
 
 const Travel: React.FC<TravelProps> = ({ userLogin }) => {
@@ -29,94 +56,73 @@ const Travel: React.FC<TravelProps> = ({ userLogin }) => {
     city: null,
     purpose: null,
   });
-  const [filteredCountries, setFilteredCountries] = useState<string[]>(['']);
-  const [filteredCities, setFilteredCities] = useState<string[]>([]);
-  const [queryCountry, setQueryCountry] = useState<string>('');
-  const [queryCity, setQueryCity] = useState('');
+  const [filteredCountries, setFilteredCountries] = useState<[]>([]);
+  const [filteredCities, setFilteredCities] = useState<{ id: string; title: string }[] | []>([]);
+  const [selectedCountry, setSelectedCountry] = useState<AutocompleteDropdownItem | null>(null);
 
-  const filterCountries = (text: string) => {
-    console.log({ text });
-    setQueryCountry(text);
-    // Filter the countries based on the input
-    if (text) {
-      const filtered = countryList.filter((country) =>
-        country.toLowerCase().startsWith(text.toLowerCase())
-      );
-      setFilteredCountries(filtered);
-    } else {
-      setFilteredCountries([]);
-    }
-  };
-  console.log({ queryCountry }, queryCountry in countryList);
-  const filterCity = (text: string) => {
-    console.log('Country', { queryCountry });
-    setQueryCity(text);
-    // Filter the countries based on the input
-    if (text) {
-      const filtered = cityList[queryCountry as keyof typeof cityList].filter(
-        (city) => city.toLowerCase().startsWith(text.toLowerCase())
-      );
-      setFilteredCountries(filtered);
-    } else {
-      setFilteredCountries([]);
-    }
+  const handleCountrySelect = (item: AutocompleteDropdownItem | null) => {
+    console.log({item}, item?.title)
+    if (item?.title) {
+      for (let i = 0; i < countryList.length - 1; i++){
+        if(countryList[i].title === item.title){
+          setSelectedCountry(countryList[i]);
+          console.log('a', item.title, cityList[item.title])
+          setFilteredCities(cityList[item.title]);
+          console.log('b', filteredCities)
+        }
+      }
+     
+    } 
   };
 
+  console.log({selectedCountry})
   return (
-    <View style={dashCardStyles.card}>
+    <View style={styles.card}>
       <Text style={styles.label}>
         Select the Country and City you want to visit:
       </Text>
-      <View style={styles.countryCity}>
-        <Autocomplete
-          style={styles.itemText}
-          data={filteredCountries}
-          value={queryCountry}
-          onChangeText={(text) => filterCountries(text)}
-          placeholder='Country'
-          flatListProps={{
-            keyExtractor: (_, idx) => idx.toString(),
-            renderItem: ({ item }: { item: string | unknown }) => (
-              <TouchableOpacity
-                onPress={() => {
-                  if (typeof item === 'string') setQueryCountry(item);
-                  setTravel({ ...travel, country: item });
-                  setFilteredCountries([]);
-                }}
-              >
-                {typeof item === 'string' ? <Text>{item}</Text> : null}
-              </TouchableOpacity>
-            ),
-          }}
-          containerStyle={styles.autocompleteContainer}
-          inputContainerStyle={styles.inputContainer}
-        />
-        {cityList[queryCountry as keyof typeof cityList] && (
-          <Autocomplete
-            style={styles.itemText}
-            data={filteredCountries}
-            defaultValue={queryCity}
-            onChangeText={(text) => filterCity(text)}
-            placeholder='City'
-            flatListProps={{
-              keyExtractor: (_, idx) => idx.toString(),
-              renderItem: ({ item }: { item: string | unknown }) => (
-                <TouchableOpacity
-                  onPress={() => {
-                    if (typeof item === 'string') setQueryCity(item);
-                    setTravel({ ...travel, city: item });
-                    setFilteredCountries([]);
-                  }}
-                >
-                  {typeof item === 'string' ? <Text>{item}</Text> : null}
-                </TouchableOpacity>
-              ),
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{ flex: 1 }}
+      >
+        <View style={styles.countryCity}>
+          <AutocompleteDropdown
+            clearOnFocus={false}
+            closeOnBlur={true}
+            closeOnSubmit={false}
+            dataSet={countryList}
+            onSelectItem={handleCountrySelect}
+            textInputProps={{
+              placeholder: 'Country',
+              autoCorrect: false,
+              style: {
+                borderWidth: 1,
+                borderColor: '#ccc',
+                padding: 10,
+                color: 'blue',
+              },
             }}
             containerStyle={styles.autocompleteContainer}
-            inputContainerStyle={styles.inputContainer}
           />
-        )}
-      </View>
+          {filteredCities.length > 0 && (
+            <AutocompleteDropdown
+              clearOnFocus={false}
+              closeOnBlur={false}
+              closeOnSubmit={false}
+              initialValue={{ id: '1' }} // optional
+              dataSet={filteredCities}
+              onSelectItem={handleCountrySelect}
+              textInputProps={{
+                placeholder: 'Country',
+                autoCorrect: false,
+                style: styles.input,
+              }}
+              containerStyle={styles.autocompleteContainer}
+              inputContainerStyle={styles.inputContainer}
+            />
+          )}
+        </View>
+      </KeyboardAvoidingView>
     </View>
   );
 };
@@ -128,7 +134,7 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: '#f9f9f9',
   },
-  countryCity: { flex: 1, flexDirection: 'row' },
+  countryCity: { flex: 1, flexDirection: 'row', zIndex: 1 },
   label: {
     fontSize: 16,
     marginBottom: 10,
@@ -155,5 +161,15 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'blue',
     borderRadius: 5,
+  },
+  card: {
+    flexGrow: 1, // Ensure the card grows based on its content
+    padding: 20,
+    margin: 10,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    backgroundColor: '#fff',
+    overflow: 'hidden', // Ensures it doesn't clip content unintentionally
   },
 });
