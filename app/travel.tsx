@@ -1,4 +1,4 @@
-import React, { useRef, memo, useCallback, useState } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -56,26 +56,26 @@ const Travel: React.FC<TravelProps> = ({ userLogin }) => {
     city: null,
     purpose: null,
   });
-  const [filteredCountries, setFilteredCountries] = useState<[]>([]);
   const [filteredCities, setFilteredCities] = useState<{ id: string; title: string }[] | []>([]);
-  const [selectedCountry, setSelectedCountry] = useState<AutocompleteDropdownItem | null>(null);
 
   const handleCountrySelect = (item: AutocompleteDropdownItem | null) => {
-    console.log({item}, item?.title)
     if (item?.title) {
       for (let i = 0; i < countryList.length - 1; i++){
         if(countryList[i].title === item.title){
-          setSelectedCountry(countryList[i]);
-          console.log('a', item.title, cityList[item.title])
+          setTravel({...travel, country: item.title})
           setFilteredCities(cityList[item.title]);
-          console.log('b', filteredCities)
         }
       }
      
     } 
   };
 
-  console.log({selectedCountry})
+  const handleCitySelect = (item: AutocompleteDropdownItem | null) => {
+    if (item?.title) {
+      setTravel({...travel, city : item.title})
+    }
+  }
+
   return (
     <View style={styles.card}>
       <Text style={styles.label}>
@@ -111,9 +111,8 @@ const Travel: React.FC<TravelProps> = ({ userLogin }) => {
               closeOnSubmit={false}
               initialValue={{ id: '1' }} // optional
               dataSet={filteredCities}
-              onSelectItem={handleCountrySelect}
+              onSelectItem={handleCitySelect}
               textInputProps={{
-                placeholder: 'Country',
                 autoCorrect: false,
                 style: styles.input,
               }}
