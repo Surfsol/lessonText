@@ -10,6 +10,9 @@ import {
 import { Link } from 'expo-router';
 import dashCardStyles from '@/styles/dashboardCardStyles';
 import { useRouter } from 'expo-router';
+import {Platform } from 'react-native'
+
+console.log({Platform})
 interface DashboardProps {
   userLogin: string | undefined;
   setUserLogin: React.Dispatch<React.SetStateAction<string | undefined>>;
