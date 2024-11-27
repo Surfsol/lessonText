@@ -125,6 +125,9 @@ const Travel: React.FC<TravelProps> = ({ userLogin }) => {
           <TouchableOpacity style={styles.confirmButton} onPress={() => router.push('/playvideo')}>
             <Text style={styles.confirmText}> Confirm</Text>
           </TouchableOpacity>
+          <TouchableOpacity style={styles.confirmButton} onPress={() => router.push('/dialog')}>
+            <Text style={styles.confirmText}> Dialog</Text>
+          </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
     </View>
