@@ -8,3 +8,4 @@ export const textLanguage = {
         "Start_Recording": "Start Recording"
     }
 }
+// for translation
